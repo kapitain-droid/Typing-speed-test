@@ -156,3 +156,29 @@ typingInput.addEventListener('paste', function(e) {
     e.preventDefault();
     alert('Pasting is disabled for accurate typing test results!');
 });
+// Add this function to save results to phone cloud
+async function saveToPhoneCloud(wpm, accuracy, duration, totalChars) {
+  try {
+    const response = await fetch('http://localhost:8080/save', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        wpm: wpm,
+        accuracy: accuracy,
+        duration: duration,
+        totalChars: totalChars,
+        timestamp: new Date().toLocaleString()
+      })
+    });
+    
+    const result = await response.json();
+    console.log('Saved to phone cloud:', result);
+  } catch (error) {
+    console.log('Phone cloud not available, using localStorage');
+    // You can add localStorage fallback here
+    // In your completeTest function, add this:
+saveToPhoneCloud(wpm, accuracy, duration, totalChars);
+  }
+}
