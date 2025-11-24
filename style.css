@@ -258,3 +258,28 @@ main {
 .celebrate {
     animation: celebrate 0.5s ease-in-out;
 }
+
+/* Add to your existing style.css */
+.btn-tertiary {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+/* Make sure the controls section can handle 3 buttons */
+.controls-section {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .controls-section {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}

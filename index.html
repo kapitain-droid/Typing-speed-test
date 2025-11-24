@@ -46,6 +46,7 @@
             <section class="controls-section">
                 <button id="resetBtn" class="btn btn-primary">Reset Test</button>
                 <button id="newTextBtn" class="btn btn-secondary">New Text</button>
+                <button onclick="viewCloudHistory()" class="btn btn-tertiary">View Cloud History</button>
             </section>
 
             <section class="instructions">
@@ -58,11 +59,13 @@
                     <span class="color-sample incorrect-sample">Red = incorrect</span>, 
                     <span class="color-sample current-sample">Blue = current position</span>
                 </div>
+                <div class="instruction-item">
+                    <strong>Cloud Storage:</strong> Your results are automatically saved to your phone cloud!
+                </div>
             </section>
         </main>
     </div>
 
     <script src="script.js"></script>
-<button onclick="viewCloudHistory()" class="btn btn-tertiary">View Cloud History</button>
 </body>
 </html>

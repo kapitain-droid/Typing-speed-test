@@ -112,17 +112,29 @@ function calculateStats() {
 
     // Check if test is completed
     if (typedText.length === originalText.length) {
-        completeTest(accuracy);
+        completeTest(wpm, accuracy);
     }
 }
 
 // Handle test completion
-function completeTest(accuracy) {
+function completeTest(wpm, accuracy) {
     clearInterval(timerInterval);
     typingInput.disabled = true;
     
     // Add celebration effect
     sampleText.classList.add('celebrate');
+    
+    // Save to phone cloud
+    const typingData = {
+        wpm: wpm,
+        accuracy: accuracy,
+        duration: Math.floor((new Date() - startTime) / 1000),
+        totalChars: typingInput.value.length,
+        textSample: sampleText.textContent.substring(0, 50) + '...',
+        timestamp: new Date().toLocaleString()
+    };
+    
+    saveToPhoneCloud(typingData);
     
     // Show results message
     let message = '';
@@ -144,41 +156,7 @@ function completeTest(accuracy) {
     }, 1000);
 }
 
-// Event listeners for buttons
-resetBtn.addEventListener('click', initTypingTest);
-newTextBtn.addEventListener('click', initTypingTest);
-
-// Initialize the test when page loads
-document.addEventListener('DOMContentLoaded', initTypingTest);
-
-// Prevent paste in typing input (for accurate testing)
-typingInput.addEventListener('paste', function(e) {
-    e.preventDefault();
-    alert('Pasting is disabled for accurate typing test results!');
-});
-// Add this function to save results to phone cloud
-async function saveToPhoneCloud(wpm, accuracy, duration, totalChars) {
-  try {
-    const response = await fetch('http://localhost:8080/save', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        wpm: wpm,
-        accuracy: accuracy,
-        duration: duration,
-        totalChars: totalChars,
-        timestamp: new Date().toLocaleString()
-      })
-    });
-    
-    const result = await response.json();
-    console.log('Saved to phone cloud:', result);
-  } catch (error) {
-    console.log('Phone cloud not available, using localStorage');
-    
-    // Phone Cloud Storage Functions
+// Phone Cloud Storage Functions
 async function saveToPhoneCloud(typingData) {
     try {
         const response = await fetch('http://localhost:8080/save', {
@@ -186,14 +164,7 @@ async function saveToPhoneCloud(typingData) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                wpm: typingData.wpm,
-                accuracy: typingData.accuracy,
-                duration: typingData.duration,
-                totalChars: typingData.totalChars,
-                textSample: typingData.textSample,
-                timestamp: new Date().toLocaleString()
-            })
+            body: JSON.stringify(typingData)
         });
         
         const result = await response.json();
@@ -216,42 +187,33 @@ async function loadFromPhoneCloud() {
         return [];
     }
 }
-    // You can add localStorage fallback here
-    // In your completeTest function, add this:
-    function completeTest(wpm, accuracy) {
-    // Your existing code...
-    
-    // ADD THIS PART:
-    const typingData = {
-        wpm: wpm,
-        accuracy: accuracy,
-        duration: Math.floor((new Date() - startTime) / 1000),
-        totalChars: typingInput.value.length,
-        textSample: sampleText.textContent.substring(0, 50) + '...'
-    };
-    
-    // Save to phone cloud
-    saveToPhoneCloud(typingData);
-    
-    // Rest of your existing code...
-}
-saveToPhoneCloud(wpm, accuracy, duration, totalChars);
 
 async function viewCloudHistory() {
     const data = await loadFromPhoneCloud();
     
     if (data.length === 0) {
-        alert('No data in cloud storage yet!');
+        alert('No data in cloud storage yet! Complete a typing test first.');
         return;
     }
     
     let message = `📊 Cloud Storage - ${data.length} tests:\n\n`;
     data.forEach((test, index) => {
         message += `${index + 1}. ${test.wpm} WPM, ${test.accuracy}% accuracy\n`;
+        message += `   Time: ${test.duration}s, Chars: ${test.totalChars}\n\n`;
     });
     
     alert(message);
 }
 
-  }
-}
+// Event listeners for buttons
+resetBtn.addEventListener('click', initTypingTest);
+newTextBtn.addEventListener('click', initTypingTest);
+
+// Initialize the test when page loads
+document.addEventListener('DOMContentLoaded', initTypingTest);
+
+// Prevent paste in typing input (for accurate testing)
+typingInput.addEventListener('paste', function(e) {
+    e.preventDefault();
+    alert('Pasting is disabled for accurate typing test results!');
+});
